@@ -1,0 +1,26 @@
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
+
+.form-container {
+  font-family: "Outfit", sans-serif;
+  width: 300px;
+  margin: 150px auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.form-container input {
+  padding: 8px;
+  font-size: 1rem;
+}
+.form-container button {
+  padding: 10px;
+  font-size: 1.1rem;
+  background-color: teal;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.form-container button:active, button:hover {
+  background-color: rgb(12, 144, 72);
+}

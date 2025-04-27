@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Materials Store</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+
+<body>
+    <!-- Replace the existing nav section with this -->
+    <header class="header">
+        <div class="logo-section">
+            <img src="LOGO.jpg" id="web-logo" alt="Study Materials Store">
+            <h1>Study Materials Store</h1>
+        </div>
+        <div class="nav-middle">
+            <input type="text" placeholder="Search materials..." class="search-input">
+        </div>
+        <div class="nav-actions">
+            <div class="cart-icon-container">
+                <span class="cart-icon"></span>
+                <span class="cart-count" id="cartCount">0</span>
+            </div>
+            <div class="auth-buttons">
+                <span id="userGreeting"></span>
+                <button class="action-btn login-btn" onclick="location.href='login.html'" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </button>
+                <button class="action-btn signup-btn" onclick="location.href='signup.html'" id="signupBtn">
+                    <i class="fas fa-user-plus"></i>
+                    Sign Up
+                </button>
+                <button class="action-btn" onclick="toggleHistory()" id="historyBtn" style="display: none;">
+                    <i class="fas fa-history"></i>
+                    My History
+                </button>
+                <button class="action-btn" onclick="showChangePasswordModal()" id="changePasswordBtn" style="display: none;">
+                    <i class="fas fa-key"></i>
+                    Change Password
+                </button>
+                <button class="action-btn logout-btn" onclick="logout()" id="logoutBtn" style="display: none;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="content">
+        <div class="filter-section">
+            <h2>Browse By Subject</h2>
+            <div class="filter-container">
+                <div class="select-wrapper">
+                    <select id="subjects" class="subject-select">
+                        <option value="">All Subjects</option>
+                        <!-- Options will be populated dynamically -->
+                    </select>
+                </div>
+                <button class="filter-btn">
+                    <i class="fas fa-filter"></i>
+                    Apply Filter
+                </button>
+            </div>
+        </div>
+        <div class="items"></div>
+    </div>
+
+    <!-- Update cart popup structure -->
+    <div id="black">
+        <div class="cart-container">
+            <span class="close-btn" onclick="closeCart()">&times;</span>
+            <h1>Your Shopping Cart</h1>
+            <div class="table-wrapper">
+                <table class="cart-table">
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Price (Rs.)</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2" class="footer-text">Subtotal</td>
+                            <td class="f">Rs. 0</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="footer-text">GST (18%)</td>
+                            <td class="f">Rs. 0</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="footer-text total">Total</td>
+                            <td class="total f">Rs. 0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <button class="checkout-btn" onclick="handleCheckout()">Checkout</button>
+        </div>
+    </div>
+
+    <!-- Update history popup structure -->
+    <div id="historyPopup">
+        <div class="cart-container">
+            <span class="close-btn" onclick="toggleHistory()">&times;</span>
+            <h1>Purchase History</h1>
+            <div class="table-wrapper">
+                <table class="cart-table" id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Item</th>
+                            <th>Price (Rs.)</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add this before the closing body tag -->
+    <div id="changePasswordModal" style="display: none;" class="modal">
+        <div class="modal-content">
+            <h2>Change Password</h2>
+            <input type="password" id="currentPassword" placeholder="Current Password">
+            <input type="password" id="newPassword" placeholder="New Password">
+            <input type="password" id="confirmPassword" placeholder="Confirm New Password">
+            <button onclick="changePassword()">Update Password</button>
+            <button onclick="closeChangePasswordModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // Replace the existing user check
+        const user = JSON.parse(localStorage.getItem("loggedUser"));
+        const loginBtn = document.getElementById("loginBtn");
+        const signupBtn = document.getElementById("signupBtn");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const userGreeting = document.getElementById("userGreeting");
+        const historyBtn = document.getElementById("historyBtn");
+
+        // Check if user exists AND is not an admin
+        if (user && user.role !== 'admin') {
+            userGreeting.textContent = `Hi, ${user.name}`;
+            loginBtn.style.display = "none";
+            signupBtn.style.display = "none";
+            logoutBtn.style.display = "inline-block";
+            historyBtn.style.display = "inline-block";
+            document.getElementById("changePasswordBtn").style.display = "inline-block";
+        } else {
+            // If no user or is admin, redirect to login
+            if (user && user.role === 'admin') {
+                window.location.href = 'admin.html';
+            }
+            userGreeting.textContent = '';
+            loginBtn.style.display = "inline-block";
+            signupBtn.style.display = "inline-block";
+            logoutBtn.style.display = "none";
+            historyBtn.style.display = "none";
+            document.getElementById("changePasswordBtn").style.display = "none";
+        }
+
+        function logout() {
+            localStorage.removeItem("loggedUser");
+            location.reload();
+        }
+
+        function toggleHistory() {
+            const popup = document.getElementById("historyPopup");
+            const tableBody = document.querySelector("#historyTable tbody");
+            popup.style.display = popup.style.display === "none" ? "flex" : "none";
+
+            if (popup.style.display === "flex") {
+                tableBody.innerHTML = "";
+                if (user.purchases && user.purchases.length > 0) {
+                    // Group purchases by date AND time
+                    const groupedPurchases = user.purchases.reduce((groups, purchase) => {
+                        const dateTime = `${purchase.date} ${purchase.time}`; // Use date-time as key
+                        if (!groups[dateTime]) {
+                            groups[dateTime] = {
+                                date: purchase.date,
+                                time: purchase.time,
+                                items: [],
+                                totalAmount: 0
+                            };
+                        }
+                        groups[dateTime].items.push(purchase);
+                        groups[dateTime].totalAmount += purchase.price;
+                        return groups;
+                    }, {});
+
+                    // Sort date-times in descending order
+                    const sortedDateTimes = Object.keys(groupedPurchases).sort((a, b) => {
+                        const dateA = new Date(a.split('/').reverse().join('-'));
+                        const dateB = new Date(b.split('/').reverse().join('-'));
+                        return dateB - dateA;
+                    });
+
+                    sortedDateTimes.forEach(dateTime => {
+                        const group = groupedPurchases[dateTime];
+                        
+                        // Add date-time header
+                        const headerRow = document.createElement("tr");
+                        headerRow.innerHTML = `
+                            <td colspan="4" style="background-color: #f5f5f5; font-weight: bold; padding: 10px;">
+                                ${group.date} at ${group.time} - Total: Rs. ${group.totalAmount}
+                            </td>
+                        `;
+                        tableBody.appendChild(headerRow);
+
+                        // Add items for this purchase group
+                        group.items.forEach(item => {
+                            const row = document.createElement("tr");
+                            row.innerHTML = `
+                                <td>${group.date}</td>
+                                <td>${group.time}</td>
+                                <td>${item.title}</td>
+                                <td>Rs. ${item.price}</td>
+                            `;
+                            tableBody.appendChild(row);
+                        });
+
+                        // Add a summary row
+                        const summaryRow = document.createElement("tr");
+                        summaryRow.innerHTML = `
+                            <td colspan="3" style="text-align: right; font-weight: bold;">
+                                Items in this purchase: ${group.items.length}
+                            </td>
+                            <td style="font-weight: bold;">Rs. ${group.totalAmount}</td>
+                        `;
+                        tableBody.appendChild(summaryRow);
+
+                        // Add a spacer row
+                        const spacerRow = document.createElement("tr");
+                        spacerRow.innerHTML = '<td colspan="4" style="height: 20px;"></td>';
+                        tableBody.appendChild(spacerRow);
+                    });
+                } else {
+                    tableBody.innerHTML = `<tr><td colspan="4">No purchases yet.</td></tr>`;
+                }
+            }
+        }
+
+        function showChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'flex';
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'none';
+        }
+
+        function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                alert("New passwords don't match!");
+                return;
+            }
+
+            const user = JSON.parse(localStorage.getItem("loggedUser"));
+            
+            fetch("http://localhost:3000/change-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: user.email,
+                    currentPassword,
+                    newPassword
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Password updated successfully!");
+                    closeChangePasswordModal();
+                } else {
+                    alert(data.message);
+                }
+            });
+        }
+
+        // Add this inside the existing script tag, after loading items.js
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initial update of filter options
+            updateFilterOptions();
+
+            // Watch for changes to items array
+            const originalPush = Array.prototype.push;
+            Array.prototype.push = function() {
+                originalPush.apply(this, arguments);
+                if (this === items) {
+                    updateFilterOptions();
+                }
+                return this.length;
+            };
+        });
+
+        function closeCart() {
+            document.getElementById('black').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    </script>
+    <script src="items.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

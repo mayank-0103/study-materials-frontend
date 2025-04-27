@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <!-- Add font import -->
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
+
+        * {
+            font-family: "Outfit", sans-serif;
+        }
+
+        .admin-container {
+            margin-top: 100px;
+            padding: 20px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px 10px 115px;
+            background-color: rgb(235, 208, 74);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 100;
+            height: 80px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo-section h1 {
+            font-size: 24px;
+            color: #333;
+            margin: 0;
+        }
+
+        #web-logo {
+            width: 90px;
+            height: 90px;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            border-radius: 20px;
+            box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+            z-index: 101;
+            object-fit: cover;
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .action-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .change-password-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .change-password-btn:hover {
+            background-color: #45a049;
+        }
+
+        .logout-btn {
+            background-color: #ff4444;
+            color: white;
+        }
+
+        .logout-btn:hover {
+            background-color: #cc0000;
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .users-table th, .users-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .users-table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .users-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .view-purchases-btn {
+            padding: 6px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .users-table tr.date-header td {
+            background-color: #f5f5f5;
+            font-weight: bold;
+            padding: 12px;
+            border-bottom: 2px solid #4CAF50;
+        }
+
+        .users-table tr.summary-row {
+            background-color: #f9f9f9;
+            font-style: italic;
+        }
+
+        .users-table tr.summary-row td {
+            padding: 8px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .users-table tr.spacer-row td {
+            height: 20px;
+            border: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.3);
+            justify-content: center;
+            align-items: center;
+            z-index: 1001; /* Higher than header's z-index of 100 */
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #4CAF50;
+            border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #45a049;
+        }
+
+        .close-btn {
+            float: right;
+            cursor: pointer;
+            font-size: 28px;
+            background: #ff4444;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: -15px -15px 0 0;
+            transition: background-color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #cc0000;
+        }
+
+        .users-table th:nth-child(1) { width: 20%; } /* Date */
+        .users-table th:nth-child(2) { width: 20%; } /* Time */
+        .users-table th:nth-child(3) { width: 40%; } /* Item */
+        .users-table th:nth-child(4) { width: 20%; } /* Price */
+
+        /* Add modal styles for password change */
+        .password-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.3);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .password-form {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            width: 400px;
+            position: relative;
+        }
+
+        .password-form h2 {
+            margin-bottom: 20px;
+        }
+
+        .password-form input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .password-form button {
+            padding: 8px 16px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .password-form .save-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .password-form .cancel-btn {
+            background-color: #ff4444;
+            color: white;
+        }
+
+        .items-management {
+            margin-top: 40px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .item-form {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .item-form input,
+        .item-form select {
+            display: block;
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .add-item-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .add-item-btn:hover {
+            background-color: #45a049;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .items-table th,
+        .items-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .items-table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .delete-item-btn {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .delete-item-btn:hover {
+            background-color: #cc0000;
+        }
+
+        .file-input-container {
+            margin: 10px 0;
+        }
+
+        .file-input-container input[type="file"] {
+            display: none;
+        }
+
+        .file-input-container label {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .file-input-container label:hover {
+            background: #45a049;
+        }
+
+        .content-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .file-input-container {
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .selected-file {
+            display: block;
+            margin-top: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .file-status {
+            margin-left: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .file-status.success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .file-status.pending {
+            background-color: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .items-table td {
+            vertical-align: middle;
+        }
+
+        .items-table .file-cell {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .new-subject-fields {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+        }
+
+        #newSubjectGroup input {
+            margin-bottom: 10px;
+        }
+
+        #newSubjectGroup input:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo-section">
+            <img src="LOGO.jpg" id="web-logo" alt="Study Materials Store">
+            <h1>Admin Dashboard</h1>
+        </div>
+        <div class="admin-actions">
+            <button class="action-btn change-password-btn" onclick="showChangePasswordModal()">
+                <i class="fas fa-key"></i>
+                Change Password
+            </button>
+            <button class="action-btn logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </div>
+    </header>
+
+    <div class="admin-container">
+        <section class="content-section">
+            <h2 class="section-title">Users List</h2>
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody"></tbody>
+            </table>
+        </section>
+
+        <section class="content-section">
+            <h2 class="section-title">Items Management</h2>
+            <div class="items-management">
+                <div class="item-form">
+                    <h3>Add New Item</h3>
+                    <form id="addItemForm" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <input type="text" id="itemTitle" name="title" placeholder="Title" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" id="itemDesc" name="desc" placeholder="Description" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="number" id="itemPrice" name="price" placeholder="Price" required>
+                        </div>
+                        <div class="form-group">
+                            <select id="itemSubject" name="subject" required onchange="handleSubjectChange(this)">
+                                <option value="">Select Subject</option>
+                                <option value="other">Other (Create New)</option>
+                            </select>
+                        </div>
+                        <div id="newSubjectGroup" class="form-group" style="display: none;"></div>
+                        <div class="file-input-container">
+                            <input type="file" id="itemFile" name="file" accept=".pdf" onchange="updateFileLabel(this)">
+                            <label for="itemFile" id="fileLabel">Choose PDF file (optional)</label>
+                            <span id="selectedFileName" class="selected-file"></span>
+                        </div>
+                        <button type="submit" class="add-item-btn">Add Item</button>
+                    </form>
+                </div>
+
+                <div class="items-list">
+                    <h3>Current Items</h3>
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Price</th>
+                                <th>Subject</th>
+                                <th>File</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="purchasesModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closePurchasesModal()">&times;</span>
+            <h2>Purchase History</h2>
+            <div id="purchasesContent"></div>
+        </div>
+    </div>
+
+    <div id="passwordModal" class="password-modal">
+        <div class="password-form">
+            <span class="close-btn" onclick="closePasswordModal()">&times;</span>
+            <h2>Change Admin Password</h2>
+            <input type="password" id="currentPassword" placeholder="Current Password">
+            <input type="password" id="newPassword" placeholder="New Password">
+            <input type="password" id="confirmPassword" placeholder="Confirm New Password">
+            <div style="text-align: right;">
+                <button class="cancel-btn" onclick="closePasswordModal()">Cancel</button>
+                <button class="save-btn" onclick="changePassword()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Replace the existing admin check
+        const user = JSON.parse(localStorage.getItem("loggedUser"));
+        if (!user || user.role !== 'admin') {
+            window.location.href = 'login.html';
+        }
+
+        // Add this function to get subject full name
+        function getSubjectFullName(subjectCode) {
+            const subjectMap = {
+                'c_prog': 'CSB 103 - Problem Solving & Computer Programming',
+                'math': 'MAL 101 - Advanced Calculus',
+                'celb_101': 'CELB 101 - Environmental Studies'
+            };
+            return subjectMap[subjectCode] || subjectCode;
+        }
+
+        // Load users list
+        fetch("http://localhost:3000/admin/users")
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.getElementById("usersTableBody");
+                data.users.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.name}</td>
+                        <td>${user.email}</td>
+                        <td>
+                            <button class="view-purchases-btn" 
+                                    onclick="viewPurchases('${user.email}')">
+                                View Purchases
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            });
+
+        function viewPurchases(email) {
+            fetch(`http://localhost:3000/admin/user-purchases/${email}`)
+                .then(res => res.json())
+                .then(data => {
+                    const modal = document.getElementById("purchasesModal");
+                    const content = document.getElementById("purchasesContent");
+                    
+                    if (data.purchases && data.purchases.length > 0) {
+                        // Group purchases by date AND time
+                        const groupedPurchases = data.purchases.reduce((groups, purchase) => {
+                            const dateTime = `${purchase.date} ${purchase.time}`; // Use date-time as key
+                            if (!groups[dateTime]) {
+                                groups[dateTime] = {
+                                    date: purchase.date,
+                                    time: purchase.time,
+                                    items: [],
+                                    totalAmount: 0
+                                };
+                            }
+                            groups[dateTime].items.push(purchase);
+                            groups[dateTime].totalAmount += purchase.price;
+                            return groups;
+                        }, {});
+
+                        // Sort date-times in descending order
+                        const sortedDateTimes = Object.keys(groupedPurchases).sort((a, b) => {
+                            const dateA = new Date(a.split('/').reverse().join('-'));
+                            const dateB = new Date(b.split('/').reverse().join('-'));
+                            return dateB - dateA;
+                        });
+
+                        content.innerHTML = `
+                            <table class="users-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Item</th>
+                                        <th>Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${sortedDateTimes.map(dateTime => {
+                                        const group = groupedPurchases[dateTime];
+                                        return `
+                                            <tr class="date-header">
+                                                <td colspan="4">
+                                                    ${group.date} at ${group.time} - Total: Rs. ${group.totalAmount}
+                                                </td>
+                                            </tr>
+                                            ${group.items.map(p => `
+                                                <tr>
+                                                    <td>${group.date}</td>
+                                                    <td>${group.time}</td>
+                                                    <td>${p.title}</td>
+                                                    <td>Rs. ${p.price}</td>
+                                                </tr>
+                                            `).join('')}
+                                            <tr class="summary-row">
+                                                <td colspan="3" style="text-align: right;">
+                                                    Items in this purchase: ${group.items.length}
+                                                </td>
+                                                <td>Rs. ${group.totalAmount}</td>
+                                            </tr>
+                                            <tr class="spacer-row">
+                                                <td colspan="4"></td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        `;
+                    } else {
+                        content.innerHTML = "<p>No purchases found.</p>";
+                    }
+                    
+                    modal.style.display = "flex";
+                });
+        }
+
+        function closePurchasesModal() {
+            document.getElementById("purchasesModal").style.display = "none";
+        }
+
+        function logout() {
+            localStorage.removeItem("loggedUser");
+            window.location.href = "login.html";
+        }
+
+        function showChangePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'flex';
+            // Clear previous inputs
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+        }
+
+        function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                alert("All fields are required!");
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert("New passwords don't match!");
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                alert("New password must be at least 6 characters long!");
+                return;
+            }
+
+            fetch("http://localhost:3000/admin/change-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: "admin@study.com",
+                    currentPassword,
+                    newPassword
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Password updated successfully!");
+                    closePasswordModal();
+                } else {
+                    alert(data.message || "Failed to update password");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("An error occurred while updating password");
+            });
+        }
+
+        function updateFileLabel(input) {
+            const fileName = input.files[0]?.name;
+            const fileLabel = document.getElementById('fileLabel');
+            const selectedFileName = document.getElementById('selectedFileName');
+            
+            if (fileName) {
+                fileLabel.textContent = 'Change PDF file';
+                selectedFileName.innerHTML = `
+                    <span class="file-status success">
+                        ✓ Selected: ${fileName}
+                    </span>
+                `;
+            } else {
+                fileLabel.textContent = 'Choose PDF file (optional)';
+                selectedFileName.textContent = '';
+            }
+        }
+
+        // Update the loadItems function to populate subjects dynamically
+        function loadItems() {
+            Promise.all([
+                fetch('../items.js').then(res => res.text()),
+                fetch('http://localhost:3000/subjects').then(res => res.json())
+            ])
+            .then(([itemsText, subjectsData]) => {
+                const itemsArray = eval(itemsText.replace('const items =', ''));
+                const subjects = subjectsData.success ? subjectsData.subjects : {};
+                
+                // Update subjects dropdown
+                const subjectSelect = document.getElementById('itemSubject');
+                
+                // Keep only first option and "Other" option
+                while (subjectSelect.options.length > 2) {
+                    subjectSelect.remove(1);
+                }
+                
+                // Get unique subjects from items
+                const uniqueSubjects = [...new Set(itemsArray.map(item => item.subject))];
+                
+                // Sort subjects alphabetically
+                uniqueSubjects.sort((a, b) => {
+                    const nameA = subjects[a] || a;
+                    const nameB = subjects[b] || b;
+                    return nameA.localeCompare(nameB);
+                });
+
+                // Add subjects with proper format
+                uniqueSubjects.forEach(subject => {
+                    if (subject !== 'other') {
+                        const displayName = subjects[subject] || subject;
+                        const option = new Option(displayName, subject);
+                        // Insert before the "Other" option
+                        subjectSelect.add(option, subjectSelect.options[subjectSelect.options.length - 1]);
+                    }
+                });
+
+                // Display items in table
+                const tbody = document.getElementById("itemsTableBody");
+                tbody.innerHTML = '';
+                
+                itemsArray.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.title}</td>
+                        <td>${item.desc}</td>
+                        <td>Rs. ${item.price}</td>
+                        <td>${subjects[item.subject] || item.subject}</td>
+                        <td>
+                            <div class="file-cell">
+                                ${item.filename ? 
+                                    `<span class="file-status success">✓ ${item.filename}</span>` : 
+                                    '<span class="file-status pending">No file</span>'}
+                            </div>
+                        </td>
+                        <td>
+                            <button class="delete-item-btn" onclick="removeItem(${index})">
+                                Delete
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            });
+        }
+
+        // Update the handleSubjectChange function
+        function handleSubjectChange(select) {
+            const newSubjectGroup = document.getElementById('newSubjectGroup');
+            if (select.value === 'other') {
+                newSubjectGroup.style.display = 'block';
+                newSubjectGroup.innerHTML = `
+                    <input type="text" 
+                        id="newSubjectCode" 
+                        placeholder="Subject Code (e.g., CSB 103)"
+                        required>
+                    <input type="text" 
+                        id="newSubjectName" 
+                        placeholder="Subject Name (e.g., Problem Solving & Computer Programming)"
+                        required>
+                `;
+            } else {
+                newSubjectGroup.style.display = 'none';
+            }
+        }
+
+        // Update the addItem function
+        function addItem(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(document.getElementById('addItemForm'));
+            const subjectSelect = document.getElementById('itemSubject');
+            const submitButton = document.querySelector('button[type="submit"]');
+            
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.textContent = 'Adding Item...';
+            }
+            
+            // Handle new subject creation
+            if (subjectSelect.value === 'other') {
+                const code = document.getElementById('newSubjectCode').value.trim();
+                const name = document.getElementById('newSubjectName').value.trim();
+                
+                if (!code || !name) {
+                    alert('Please fill in both subject code and name');
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Add Item';
+                    }
+                    return;
+                }
+                
+                const newSubjectValue = code.toLowerCase().replace(/\s+/g, '_');
+                formData.set('subject', newSubjectValue);
+                formData.append('newSubjectCode', code);
+                formData.append('newSubjectName', name);
+            }
+            
+            fetch("http://localhost:3000/admin/add-item", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Item added successfully! Please wait while the system updates...');
+                    // Wait for server restart (5 seconds to be safe)
+                    setTimeout(() => {
+                        window.location.reload(true);
+                    }, 5000);
+                } else {
+                    alert(data.message || 'Failed to add item');
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Add Item';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error adding item:', error);
+                alert('An error occurred while adding the item. Please try again.');
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Add Item';
+                }
+            });
+        }
+
+        // Make sure to have this event listener
+        document.getElementById('addItemForm').addEventListener('submit', addItem);
+
+        function removeItem(index) {
+            if (!confirm('Are you sure you want to delete this item?')) {
+                return;
+            }
+
+            const deleteBtn = document.querySelector(`button[onclick="removeItem(${index})"]`);
+            if (deleteBtn) {
+                deleteBtn.disabled = true;
+                deleteBtn.textContent = 'Deleting...';
+            }
+
+            fetch(`http://localhost:3000/admin/remove-item/${index}`, {
+                method: "DELETE"
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Item removed successfully! Please wait while the system updates...');
+                    // Wait for server restart (5 seconds)
+                    setTimeout(() => {
+                        window.location.reload(true);
+                    }, 5000);
+                } else {
+                    alert(data.message || 'Failed to remove item');
+                    if (deleteBtn) {
+                        deleteBtn.disabled = false;
+                        deleteBtn.textContent = 'Delete';
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while removing the item');
+                if (deleteBtn) {
+                    deleteBtn.disabled = false;
+                    deleteBtn.textContent = 'Delete';
+                }
+            });
+        }
+
+        loadItems();
+    </script>
+</body>
+</html>

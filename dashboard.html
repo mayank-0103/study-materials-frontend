@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="form-container">
+    <h2 id="welcome"></h2>
+    <button onclick="logout()" style="background-color: gray;">Logout</button>
+
+    <h3>Your Purchase History</h3>
+    <div id="history"></div>
+  </div>
+
+  <script>
+    const user = JSON.parse(localStorage.getItem("loggedUser"));
+    const welcome = document.getElementById("welcome");
+    const historyDiv = document.getElementById("history");
+
+    if (!user) {
+      alert("Please login first.");
+      window.location.href = "login.html";
+    } else {
+      welcome.textContent = `Welcome, ${user.name}!`;
+
+      if (user.purchases && user.purchases.length > 0) {
+        user.purchases.forEach(purchase => {
+          const div = document.createElement("div");
+          div.innerHTML = `
+            <strong>${purchase.title}</strong><br>
+            Quantity: ${purchase.quantity}<br>
+            Date: ${purchase.date}<hr>
+          `;
+          historyDiv.appendChild(div);
+        });
+      } else {
+        historyDiv.textContent = "You haven't purchased anything yet.";
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("loggedUser");
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>
