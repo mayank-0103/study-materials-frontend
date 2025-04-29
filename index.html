@@ -269,7 +269,7 @@
 
             const user = JSON.parse(localStorage.getItem("loggedUser"));
             
-            fetch("'https://study-materials-api.onrender.com'/change-password", {
+            fetch("https://study-materials-backend-fsaa.onrender.com/change-password", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
