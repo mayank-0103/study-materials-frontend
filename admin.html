@@ -568,7 +568,7 @@
         }
 
         // Load users list
-        fetch("http://localhost:3000/admin/users")
+        fetch("'https://study-materials-api.onrender.com'/admin/users")
             .then(res => res.json())
             .then(data => {
                 const tbody = document.getElementById("usersTableBody");
@@ -589,7 +589,7 @@
             });
 
         function viewPurchases(email) {
-            fetch(`http://localhost:3000/admin/user-purchases/${email}`)
+            fetch(`'https://study-materials-api.onrender.com'/admin/user-purchases/${email}`)
                 .then(res => res.json())
                 .then(data => {
                     const modal = document.getElementById("purchasesModal");
@@ -709,7 +709,7 @@
                 return;
             }
 
-            fetch("http://localhost:3000/admin/change-password", {
+            fetch("'https://study-materials-api.onrender.com'/admin/change-password", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -755,7 +755,7 @@
         function loadItems() {
             Promise.all([
                 fetch('../items.js').then(res => res.text()),
-                fetch('http://localhost:3000/subjects').then(res => res.json())
+                fetch(''https://study-materials-api.onrender.com'/subjects').then(res => res.json())
             ])
             .then(([itemsText, subjectsData]) => {
                 const itemsArray = eval(itemsText.replace('const items =', ''));
@@ -871,7 +871,7 @@
                 formData.append('newSubjectName', name);
             }
             
-            fetch("http://localhost:3000/admin/add-item", {
+            fetch("'https://study-materials-api.onrender.com'/admin/add-item", {
                 method: "POST",
                 body: formData
             })
@@ -915,7 +915,7 @@
                 deleteBtn.textContent = 'Deleting...';
             }
 
-            fetch(`http://localhost:3000/admin/remove-item/${index}`, {
+            fetch(`'https://study-materials-api.onrender.com'/admin/remove-item/${index}`, {
                 method: "DELETE"
             })
             .then(res => res.json())
