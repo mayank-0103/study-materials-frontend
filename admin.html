@@ -751,70 +751,22 @@
             }
         }
 
-        // Update the loadItems function to populate subjects dynamically
+        // Replace the loadItems function
         function loadItems() {
             Promise.all([
-                fetch('../items.js').then(res => res.text()),
+                fetch('https://study-materials-backend-fsaa.onrender.com/items').then(res => res.json()),
                 fetch('https://study-materials-backend-fsaa.onrender.com/subjects').then(res => res.json())
             ])
-            .then(([itemsText, subjectsData]) => {
-                const itemsArray = eval(itemsText.replace('const items =', ''));
+            .then(([itemsData, subjectsData]) => {
+                if (!itemsData.success) {
+                    throw new Error('Failed to load items');
+                }
+                const itemsArray = itemsData.items;
                 const subjects = subjectsData.success ? subjectsData.subjects : {};
                 
                 // Update subjects dropdown
                 const subjectSelect = document.getElementById('itemSubject');
-                
-                // Keep only first option and "Other" option
-                while (subjectSelect.options.length > 2) {
-                    subjectSelect.remove(1);
-                }
-                
-                // Get unique subjects from items
-                const uniqueSubjects = [...new Set(itemsArray.map(item => item.subject))];
-                
-                // Sort subjects alphabetically
-                uniqueSubjects.sort((a, b) => {
-                    const nameA = subjects[a] || a;
-                    const nameB = subjects[b] || b;
-                    return nameA.localeCompare(nameB);
-                });
-
-                // Add subjects with proper format
-                uniqueSubjects.forEach(subject => {
-                    if (subject !== 'other') {
-                        const displayName = subjects[subject] || subject;
-                        const option = new Option(displayName, subject);
-                        // Insert before the "Other" option
-                        subjectSelect.add(option, subjectSelect.options[subjectSelect.options.length - 1]);
-                    }
-                });
-
-                // Display items in table
-                const tbody = document.getElementById("itemsTableBody");
-                tbody.innerHTML = '';
-                
-                itemsArray.forEach((item, index) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${item.title}</td>
-                        <td>${item.desc}</td>
-                        <td>Rs. ${item.price}</td>
-                        <td>${subjects[item.subject] || item.subject}</td>
-                        <td>
-                            <div class="file-cell">
-                                ${item.filename ? 
-                                    `<span class="file-status success">✓ ${item.filename}</span>` : 
-                                    '<span class="file-status pending">No file</span>'}
-                            </div>
-                        </td>
-                        <td>
-                            <button class="delete-item-btn" onclick="removeItem(${index})">
-                                Delete
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(row);
-                });
+                // ... rest of the existing loadItems code ...
             });
         }
 
@@ -948,3 +900,4 @@
     </script>
 </body>
 </html>
+`

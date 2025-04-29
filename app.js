@@ -7,21 +7,26 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("resize", updateNavWidth);
 });
 
+// Replace the existing items loading code
 document.addEventListener("DOMContentLoaded", function() {
-    // Initialize items
-    items.forEach((item, index) => {
-        addItems(index);
-    });
+    // Fetch items from backend
+    fetch("https://study-materials-backend-fsaa.onrender.com/items")
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                window.items = data.items;
+                // Initialize items
+                items.forEach((item, index) => {
+                    addItems(index);
+                });
+                // Initialize filter options
+                updateFilterOptions();
+            }
+        })
+        .catch(err => console.error('Error loading items:', err));
 
     // Initialize cart
     CART();
-
-    // Initialize search and filter functionality
-    const searchInput = document.querySelector('.search-input');
-    const filterBtn = document.querySelector('.filter-btn');
-    
-    if (!searchInput) console.error('Search input not found');
-    if (!filterBtn) console.error('Filter button not found');
 });
 
 const items_section = document.querySelector(".items");
