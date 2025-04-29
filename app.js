@@ -7,26 +7,42 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("resize", updateNavWidth);
 });
 
-// Replace the existing items loading code
+// Replace the items loading code at the beginning with:
+let items = []; // Global items array
+
+// Add this function to load items
+async function loadItemsFromServer() {
+    try {
+        const response = await fetch('https://study-materials-backend-fsaa.onrender.com/items');
+        const data = await response.json();
+        if (data.success) {
+            items = data.items;
+            // Initialize items display
+            items.forEach((item, index) => {
+                addItems(index);
+            });
+            // Update filter options
+            updateFilterOptions();
+        }
+    } catch (err) {
+        console.error('Error loading items:', err);
+    }
+}
+
+// Update the DOMContentLoaded event listener
 document.addEventListener("DOMContentLoaded", function() {
-    // Fetch items from backend
-    fetch("https://study-materials-backend-fsaa.onrender.com/items")
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                window.items = data.items;
-                // Initialize items
-                items.forEach((item, index) => {
-                    addItems(index);
-                });
-                // Initialize filter options
-                updateFilterOptions();
-            }
-        })
-        .catch(err => console.error('Error loading items:', err));
+    // Load items from server
+    loadItemsFromServer();
 
     // Initialize cart
     CART();
+
+    // Initialize search and filter functionality
+    const searchInput = document.querySelector('.search-input');
+    const filterBtn = document.querySelector('.filter-btn');
+    
+    if (!searchInput) console.error('Search input not found');
+    if (!filterBtn) console.error('Filter button not found');
 });
 
 const items_section = document.querySelector(".items");
