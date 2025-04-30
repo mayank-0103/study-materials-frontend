@@ -139,10 +139,15 @@ function addItems(i) {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                downloadLink.href = `https://study-materials-backend-fsaa.onrender.com${data.download}`;
-                downloadLink.style.display = "inline-block";
-                submitBtn.style.display = "none";
-                passwordInput.style.display = "none";
+                // Use Cloudinary URL for download
+                if (items[i].fileUrl) {
+                    downloadLink.href = items[i].fileUrl;
+                    downloadLink.style.display = "inline-block";
+                    submitBtn.style.display = "none";
+                    passwordInput.style.display = "none";
+                } else {
+                    alert("No file available for this item.");
+                }
             } else {
                 alert(data.message || "Incorrect password.");
             }
