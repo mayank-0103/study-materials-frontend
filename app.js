@@ -13,7 +13,7 @@ let items = []; // Global items array
 // Add this function to load items
 async function loadItemsFromServer() {
     try {
-        const response = await fetch('https://study-materials-backend-fsaa.onrender.com/items');
+        const response = await fetch('http://localhost:3000/items');
         const data = await response.json();
         if (data.success) {
             items = data.items;
@@ -126,7 +126,7 @@ function addItems(i) {
             return;
         }
 
-        fetch("https://study-materials-backend-fsaa.onrender.com/verify-password", {
+        fetch("http://localhost:3000/verify-password", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -139,7 +139,7 @@ function addItems(i) {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                downloadLink.href = `https://study-materials-backend-fsaa.onrender.com${data.download}`;
+                downloadLink.href = `http://localhost:3000${data.download}`;
                 downloadLink.style.display = "inline-block";
                 submitBtn.style.display = "none";
                 passwordInput.style.display = "none";
@@ -291,7 +291,7 @@ function unlockItem(title, password, button = null) {
             }
         }
 
-        fetch("https://study-materials-backend-fsaa.onrender.com/verify-password", {
+        fetch("http://localhost:3000/verify-password", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -306,7 +306,7 @@ function unlockItem(title, password, button = null) {
                 if (card) {
                     // Update card UI
                     const downloadLink = card.querySelector(".download");
-                    downloadLink.href = `https://study-materials-backend-fsaa.onrender.com${data.download}`;
+                    downloadLink.href = `http://localhost:3000${data.download}`;
                     downloadLink.style.display = "inline-block";
                     downloadLink.style.position = "absolute";
                     downloadLink.style.right = "10px";
@@ -540,7 +540,7 @@ function handleCheckout() {
         quantity: 1
     }));
 
-    fetch("https://study-materials-backend-fsaa.onrender.com/checkout", {
+    fetch("http://localhost:3000/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -555,7 +555,7 @@ function handleCheckout() {
             showPasswordModal(data.passwords);
             
             // Open bill in new tab
-            window.open(`https://study-materials-backend-fsaa.onrender.com${data.download}`, "_blank");
+            window.open(`http://localhost:3000${data.download}`, "_blank");
             
             // Record purchase time
             const purchaseTime = new Date();
@@ -573,7 +573,7 @@ function handleCheckout() {
             localStorage.setItem("loggedUser", JSON.stringify(loggedUser));
 
             // Update backend
-            fetch("https://study-materials-backend-fsaa.onrender.com/record-purchase", {
+            fetch("http://localhost:3000/record-purchase", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -716,7 +716,7 @@ function clearSearch() {
 // Replace the existing getSubjectFullName function
 async function loadSubjects() {
     try {
-        const response = await fetch('https://study-materials-backend-fsaa.onrender.com/subjects');
+        const response = await fetch('http://localhost:3000/subjects');
         const data = await response.json();
         return data.success ? data.subjects : {};
     } catch (err) {
