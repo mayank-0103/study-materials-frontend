@@ -568,7 +568,7 @@
         }
 
         // Load users list
-        fetch("http://localhost:3000/admin/users")
+        fetch("https://study-materials-backend-fsaa.onrender.com/admin/users")
             .then(res => res.json())
             .then(data => {
                 const tbody = document.getElementById("usersTableBody");
@@ -589,7 +589,7 @@
             });
 
         function viewPurchases(email) {
-            fetch(`http://localhost:3000/admin/user-purchases/${email}`)
+            fetch(`https://study-materials-backend-fsaa.onrender.com/admin/user-purchases/${email}`)
                 .then(res => res.json())
                 .then(data => {
                     const modal = document.getElementById("purchasesModal");
@@ -709,7 +709,7 @@
                 return;
             }
 
-            fetch("http://localhost:3000/admin/change-password", {
+            fetch("https://study-materials-backend-fsaa.onrender.com/admin/change-password", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -754,8 +754,8 @@
         // Update the loadItems function in the script section
         function loadItems() {
             Promise.all([
-                fetch('http://localhost:3000/items'),
-                fetch('http://localhost:3000/subjects')
+                fetch('https://study-materials-backend-fsaa.onrender.com/items'),
+                fetch('https://study-materials-backend-fsaa.onrender.com/subjects')
             ])
             .then(([itemsRes, subjectsRes]) => Promise.all([itemsRes.json(), subjectsRes.json()]))
             .then(([itemsData, subjectsData]) => {
@@ -872,7 +872,7 @@
                 formData.append('newSubjectName', name);
             }
             
-            fetch("http://localhost:3000/admin/add-item", {
+            fetch("https://study-materials-backend-fsaa.onrender.com/admin/add-item", {
                 method: "POST",
                 body: formData
             })
@@ -916,7 +916,7 @@
                 deleteBtn.textContent = 'Deleting...';
             }
 
-            fetch(`http://localhost:3000/admin/remove-item/${index}`, {
+            fetch(`https://study-materials-backend-fsaa.onrender.com/admin/remove-item/${index}`, {
                 method: "DELETE"
             })
             .then(res => res.json())
